@@ -7,9 +7,9 @@ public class Db {
 
     public static List<Pedido> banco = new ArrayList<>();
 
-    public void salvarNoBanco(Pedido p) {
+    public void salvarNoBanco(Pedido pedido) {
         try {
-            banco.add(p);
+            banco.add(pedido);
             System.out.println("salvou no banco");
         } catch (Exception e) {
             System.out.println("erro ao salvar");
