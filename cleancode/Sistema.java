@@ -20,7 +20,7 @@ public class Sistema {
     }
 
     public int receberOperacao() {
-        int operacao = 0;
+        int operacao;
         try {
             operacao = Integer.parseInt(teclado.nextLine());
         } catch (Exception e) {
