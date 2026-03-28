@@ -34,7 +34,7 @@ public class Sistema {
             } else if (operacao == 5) {
                 cancelarPedido();
             } else if (operacao == 0) {
-                interfaceUsuario.exibirMenssagem("Erro");
+                interfaceUsuario.exibirMenssagem("Fim");
             } else {
                 interfaceUsuario.exibirMenssagem("Opção invalida");
             }
