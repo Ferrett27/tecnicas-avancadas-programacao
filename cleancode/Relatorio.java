@@ -11,24 +11,25 @@ public class Relatorio {
     int clientesVips = 0;
     int quantidade = 0;
 
-    public void exibirDetalhesPedidos(List<Pedido> pedidos) {
-        for (Pedido pedido : pedidos) {
-            System.out.println("Pedido " + pedido.id + " - " + pedido.cliente.nome + " - " + pedido.total + " - " + pedido.status);
+    public void gerar(List<Pedido> pedidos) {
+        System.out.println("======= RELATORIO =======");
 
-            for (Item item : pedido.itens) {
-                System.out.println("  Item: " + item.nome + " Quantidade: " + item.quantidade + " Preço: " + item.preco);
-            }
+        if(pedidos.isEmpty()) {
+            System.out.println("Nenhum pedido encontrado.");
+            System.out.println("Media: 0");
+            return;
         }
-    }
 
-    public void avaliacaoRelatorio(double soma) {
-        if (soma > 1000) {
-            System.out.println("Resultado muito bom");
-        } else if (soma > 500) {
-            System.out.println("Resultado ok");
-        } else {
-            System.out.println("Resultado fraco");
-        }
+        calcularSoma(pedidos);
+        calcularCancelamentos(pedidos);
+        calcularTiposClientes(pedidos);
+        quantidade = pedidos.size();
+
+        exibirDetalhesPedidos(pedidos);
+
+        exibirDetalhesRelatorio();
+
+        avaliacaoRelatorio(somaPedidos);
     }
 
     public void calcularSoma(List<Pedido> pedidos) {
@@ -57,6 +58,16 @@ public class Relatorio {
         }
     }
 
+    public void exibirDetalhesPedidos(List<Pedido> pedidos) {
+        for (Pedido pedido : pedidos) {
+            System.out.println("Pedido " + pedido.id + " - " + pedido.cliente.nome + " - " + pedido.total + " - " + pedido.status);
+
+            for (Item item : pedido.itens) {
+                System.out.println("  Item: " + item.nome + " Quantidade: " + item.quantidade + " Preço: " + item.preco);
+            }
+        }
+    }
+
     public void exibirDetalhesRelatorio(){
         System.out.println("--------------------");
         System.out.println("Quantidade de pedidos: " + quantidade);
@@ -68,24 +79,13 @@ public class Relatorio {
         System.out.println("Media: " + (somaPedidos / quantidade));
     }
 
-    public void gerar(List<Pedido> pedidos) {
-        System.out.println("======= RELATORIO =======");
-
-        if(pedidos.isEmpty()) {
-            System.out.println("Nenhum pedido encontrado.");
-            System.out.println("Media: 0");
-            return;
+    public void avaliacaoRelatorio(double soma) {
+        if (soma > 1000) {
+            System.out.println("Resultado muito bom");
+        } else if (soma > 500) {
+            System.out.println("Resultado ok");
+        } else {
+            System.out.println("Resultado fraco");
         }
-
-        calcularSoma(pedidos);
-        calcularCancelamentos(pedidos);
-        calcularTiposClientes(pedidos);
-        quantidade = pedidos.size();
-
-        exibirDetalhesPedidos(pedidos);
-
-        exibirDetalhesRelatorio();
-
-        avaliacaoRelatorio(somaPedidos);
     }
 }
