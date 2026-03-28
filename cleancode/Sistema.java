@@ -8,28 +8,6 @@ public class Sistema {
     Scanner teclado = new Scanner(System.in);
     Db bancoDeDados = new Db();
 
-    public void exibirOpcoes() {
-        System.out.println("==== SISTEMA ====");
-        System.out.println("1 - Novo pedido");
-        System.out.println("2 - Listar pedidos");
-        System.out.println("3 - Buscar pedido por id");
-        System.out.println("4 - Relatorio");
-        System.out.println("5 - Cancelar pedido");
-        System.out.println("0 - Sair");
-        System.out.print("Opção: ");
-    }
-
-    public int receberOperacao() {
-        int operacao;
-        try {
-            operacao = Integer.parseInt(teclado.nextLine());
-        } catch (Exception e) {
-            System.out.println("Erro");
-            operacao = -1;
-        }
-        return operacao;
-    }
-
     public void executarSistema() {
         int operacao = -1;
 
@@ -56,17 +34,40 @@ public class Sistema {
         }
     }
 
-    public int escolherTipoDeCliente() {
-        System.out.println("Tipo cliente (1 comum, 2 premium, 3 vip):");
-        int tipoCliente;
+    public void exibirOpcoes() {
+        System.out.println("==== SISTEMA ====");
+        System.out.println("1 - Novo pedido");
+        System.out.println("2 - Listar pedidos");
+        System.out.println("3 - Buscar pedido por id");
+        System.out.println("4 - Relatorio");
+        System.out.println("5 - Cancelar pedido");
+        System.out.println("0 - Sair");
+        System.out.print("Opção: ");
+    }
+
+    public int receberOperacao() {
+        int operacao;
         try {
-            tipoCliente = Integer.parseInt(teclado.nextLine());
-            return tipoCliente;
+            operacao = Integer.parseInt(teclado.nextLine());
         } catch (Exception e) {
-            System.out.println("Tipo errado, vai comum");
-            tipoCliente = 1;
-            return tipoCliente;
+            System.out.println("Erro");
+            operacao = -1;
         }
+        return operacao;
+    }
+
+    public void criarNovoPedido() {
+        Cliente cliente = criarCliente();
+
+        Pedido pedido = criarPedido(cliente);
+
+        adicionarItemsEmPedido(pedido);
+
+        pedido.total = calcularTotal(pedido, cliente);
+
+        bancoDeDados.salvarNoBanco(pedido);
+
+        confirmarPedido(pedido);
     }
 
     public Cliente criarCliente() {
@@ -83,6 +84,19 @@ public class Sistema {
         return cliente;
     }
 
+    public int escolherTipoDeCliente() {
+        System.out.println("Tipo cliente (1 comum, 2 premium, 3 vip):");
+        int tipoCliente;
+        try {
+            tipoCliente = Integer.parseInt(teclado.nextLine());
+            return tipoCliente;
+        } catch (Exception e) {
+            System.out.println("Tipo errado, vai comum");
+            tipoCliente = 1;
+            return tipoCliente;
+        }
+    }
+
     public Pedido criarPedido(Cliente cliente) {
         Pedido pedido = new Pedido();
 
@@ -92,6 +106,29 @@ public class Sistema {
         pedido.itens = new ArrayList<>();
 
         return pedido;
+    }
+
+    public void adicionarItemsEmPedido(Pedido pedido) {
+        String continua = "s";
+        while (continua.equalsIgnoreCase("s")) {
+            Item item = criarItem();
+            pedido.itens.add(item);
+
+            System.out.println("Adicionar mais item? s/n");
+            continua = teclado.nextLine();
+        }
+    }
+
+    public Item criarItem() {
+        System.out.println("Nome item:");
+        String nomeItem = teclado.nextLine();
+
+        Item item = new Item();
+        item.nome = nomeItem;
+        item.preco = pegarPrecoItem();
+        item.quantidade = pegarQuantidadeItem();
+
+        return item;
     }
 
     public double pegarPrecoItem() {
@@ -112,27 +149,11 @@ public class Sistema {
         }
     }
 
-    public Item criarItem() {
-        System.out.println("Nome item:");
-        String nomeItem = teclado.nextLine();
-
-        Item item = new Item();
-        item.nome = nomeItem;
-        item.preco = pegarPrecoItem();
-        item.quantidade = pegarQuantidadeItem();
-
-        return item;
-    }
-
-    public void adicionarItemsEmPedido(Pedido pedido) {
-        String continua = "s";
-        while (continua.equalsIgnoreCase("s")) {
-            Item item = criarItem();
-            pedido.itens.add(item);
-
-            System.out.println("Adicionar mais item? s/n");
-            continua = teclado.nextLine();
-        }
+    public double calcularTotal(Pedido pedido, Cliente cliente) {
+        double total = pedido.calcularPrecoPedido();
+        total = calcularDesconto(total, cliente);
+        total = calcularFrete(total);
+        return total;
     }
 
     public double calcularDesconto(double total, Cliente cliente) {
@@ -161,13 +182,6 @@ public class Sistema {
         return total;
     }
 
-    public double calcularTotal(Pedido pedido, Cliente cliente) {
-        double total = pedido.calcularPrecoPedido();
-        total = calcularDesconto(total, cliente);
-        total = calcularFrete(total);
-        return total;
-    }
-
     public void confirmarPedido(Pedido pedido) {
         System.out.println("Pedido criado com sucesso");
         System.out.println("Id: " + pedido.id);
@@ -179,20 +193,6 @@ public class Sistema {
         }
     }
 
-    public void criarNovoPedido() {
-        Cliente cliente = criarCliente();
-
-        Pedido pedido = criarPedido(cliente);
-
-        adicionarItemsEmPedido(pedido);
-
-        pedido.total = calcularTotal(pedido, cliente);
-
-        bancoDeDados.salvarNoBanco(pedido);
-
-        confirmarPedido(pedido);
-    }
-
     public void listarPedidos() {
         if (bancoDeDados.pegarListaPedidos().isEmpty()) {
             System.out.println("Sem pedidos");
@@ -201,6 +201,18 @@ public class Sistema {
                 System.out.println("---------------");
                 pedido.informacaoPedido();
             }
+        }
+    }
+
+    public void buscarPedidoPorId() {
+        System.out.println("Digite o id:");
+        int id = Integer.parseInt(teclado.nextLine());
+        Pedido pedido = bancoDeDados.pegarPorId(id);
+
+        if (pedido != null) {
+            mostrarPedidoPorId(pedido);
+        } else {
+            System.out.println("Não achou");
         }
     }
 
@@ -225,19 +237,7 @@ public class Sistema {
             contador++;
         }
     }
-
-    public void buscarPedidoPorId() {
-        System.out.println("Digite o id:");
-        int id = Integer.parseInt(teclado.nextLine());
-        Pedido pedido = bancoDeDados.pegarPorId(id);
-
-        if (pedido != null) {
-            mostrarPedidoPorId(pedido);
-        } else {
-            System.out.println("Não achou");
-        }
-    }
-
+    
     public void criarRelatorio() {
         Relatorio relatorio = new Relatorio();
         relatorio.gerar(bancoDeDados.pegarListaPedidos());
